@@ -258,11 +258,6 @@ public partial class MainViewModel : ObservableObject
             // Allow empty address (for server auto-detect)
             var serverIp = ip.Address ?? string.Empty;
             SelectedProfile.Variables["SERVER_IP"] = serverIp;
-            CurrentServerIp = string.IsNullOrWhiteSpace(serverIp) ? "(empty - server will auto-detect)" : serverIp;
-        }
-        else
-        {
-            CurrentServerIp = "(no IP configured)";
         }
     }
 
