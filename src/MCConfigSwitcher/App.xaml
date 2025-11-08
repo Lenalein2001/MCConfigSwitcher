@@ -1,0 +1,17 @@
+<Application x:Class="MCConfigSwitcher.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tb="http://www.hardcodet.net/taskbar">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Dark.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <!-- Tray icon resource; uses app icon if available -->
+            <tb:TaskbarIcon x:Key="AppTrayIcon"
+                            ToolTipText="MC Config Switcher"
+                            Icon="Assets/app.ico"
+                            Visibility="Hidden"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
