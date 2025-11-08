@@ -91,3 +91,10 @@ $RECYCLE.BIN/
 profiles.json
 appsettings.json
 *.config
+
+# Test projects
+tests/
+
+# Release artifacts
+*.zip
+*.exe
