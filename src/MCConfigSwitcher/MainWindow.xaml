@@ -62,10 +62,18 @@
                     </StackPanel>
 
                     <!-- Target file selector -->
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0" DataContext="{Binding SelectedProfile}">
-                        <TextBlock Text="Target:" Width="60" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding Targets[0].Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="340"/>
-                        <Button Content="Browse" Margin="8,0,0,0" Command="{Binding DataContext.BrowseFileCommand, RelativeSource={RelativeSource AncestorType=Border}}"/>
+                    <StackPanel Margin="0,8,0,0" DataContext="{Binding}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Target:" Width="60" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding SelectedProfile.Targets[0].Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="300"/>
+                            <Button Content="Browse" Margin="8,0,0,0" MinWidth="80" Command="{Binding BrowseFileCommand}"/>
+                        </StackPanel>
+                        <TextBlock Margin="60,2,0,0" FontSize="11" Foreground="{StaticResource Brush.MutedText}">
+                            <Run Text="server-ip is currently: "/>
+                            <Run Text="{Binding CurrentServerIp, Mode=OneWay}" 
+                                 FontWeight="SemiBold" 
+                                 Foreground="{StaticResource Brush.Accent}"/>
+                        </TextBlock>
                     </StackPanel>
 
                     <!-- Dynamic IP entries -->

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using MCConfigSwitcher.Models;
 using MCConfigSwitcher.Services;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace MCConfigSwitcher.ViewModels;
 
@@ -18,6 +19,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private Profile? selectedProfile;
+
+    [ObservableProperty]
+    private string currentServerIp = string.Empty;
 
     public MainViewModel()
     {
@@ -111,6 +115,7 @@ public partial class MainViewModel : ObservableObject
         MapServerIp();
         var r = _applyService.DryRun(SelectedProfile);
         foreach (var kv in r.FileDiffs) _log.Info($"DryRun {kv.Key}: {(kv.Value == "(no changes)" || kv.Value == "(missing)" ? kv.Value : kv.Value.Split('\n').Length + " lines diff")}");
+        ReadCurrentServerIpFromFile();
     }
 
     [RelayCommand(CanExecute = nameof(CanApply))]
@@ -122,6 +127,7 @@ public partial class MainViewModel : ObservableObject
         var r = _applyService.Apply(SelectedProfile);
         _profileManager.Save();
         _log.Info(r.Message);
+        ReadCurrentServerIpFromFile();
     }
 
     [RelayCommand]
@@ -130,6 +136,7 @@ public partial class MainViewModel : ObservableObject
         if (SelectedProfile == null) return;
         var r = _applyService.Revert(SelectedProfile);
         _log.Warn(r.Message);
+        ReadCurrentServerIpFromFile();
     }
 
     [RelayCommand]
@@ -159,9 +166,25 @@ public partial class MainViewModel : ObservableObject
         {
             value.PropertyChanged -= Profile_PropertyChanged;
             value.PropertyChanged += Profile_PropertyChanged;
+            
+            // Wire Targets collection to read file when path changes
+            if (value.Targets.Count > 0)
+            {
+                value.Targets[0].PropertyChanged -= Target_PropertyChanged;
+                value.Targets[0].PropertyChanged += Target_PropertyChanged;
+            }
         }
         WireIpEntryHandlers();
         MapServerIp();
+        ReadCurrentServerIpFromFile();
+    }
+
+    private void Target_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(TargetFile.Path))
+        {
+            ReadCurrentServerIpFromFile();
+        }
     }
 
     private void Profile_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -177,6 +200,44 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    private void ReadCurrentServerIpFromFile()
+    {
+        if (SelectedProfile == null || SelectedProfile.Targets.Count == 0)
+        {
+            CurrentServerIp = "(no target file)";
+            return;
+        }
+
+        var targetPath = SelectedProfile.Targets[0].Path;
+        if (string.IsNullOrWhiteSpace(targetPath) || !File.Exists(targetPath))
+        {
+            CurrentServerIp = "(file not found)";
+            return;
+        }
+
+        try
+        {
+            var lines = File.ReadAllLines(targetPath);
+            var serverIpLine = lines.FirstOrDefault(l => l.TrimStart().StartsWith("server-ip="));
+            
+            if (serverIpLine != null)
+            {
+                var value = serverIpLine.Split('=', 2).LastOrDefault()?.Trim();
+                CurrentServerIp = string.IsNullOrWhiteSpace(value) 
+                    ? "(empty - server will auto-detect)" 
+                    : value;
+            }
+            else
+            {
+                CurrentServerIp = "(server-ip not found in file)";
+            }
+        }
+        catch
+        {
+            CurrentServerIp = "(error reading file)";
+        }
+    }
+
     private void MapServerIp()
     {
         if (SelectedProfile == null) return;
@@ -184,7 +245,14 @@ public partial class MainViewModel : ObservableObject
         {
             var activeName = SelectedProfile.ActiveIpChoice;
             var ip = SelectedProfile.IpEntries.FirstOrDefault(e => e.Name == activeName) ?? SelectedProfile.IpEntries.First();
-            SelectedProfile.Variables["SERVER_IP"] = ip.Address;
+            // Allow empty address (for server auto-detect)
+            var serverIp = ip.Address ?? string.Empty;
+            SelectedProfile.Variables["SERVER_IP"] = serverIp;
+            CurrentServerIp = string.IsNullOrWhiteSpace(serverIp) ? "(empty - server will auto-detect)" : serverIp;
+        }
+        else
+        {
+            CurrentServerIp = "(no IP configured)";
         }
     }
 
@@ -280,7 +348,9 @@ public partial class MainViewModel : ObservableObject
     {
         if (SelectedProfile == null) return false;
         if (SelectedProfile.IpEntries.Count == 0) return false; // need at least one
-        return SelectedProfile.IpEntries.All(ip => !string.IsNullOrWhiteSpace(ip.Address) && IPv4Regex.IsMatch(ip.Address));
+        // Allow empty addresses (for server auto-detect) or valid IPv4
+        return SelectedProfile.IpEntries.All(ip => 
+            string.IsNullOrWhiteSpace(ip.Address) || IPv4Regex.IsMatch(ip.Address));
     }
 
     private bool HasTargetPath() => SelectedProfile?.Targets?.Count > 0 && !string.IsNullOrWhiteSpace(SelectedProfile.Targets[0].Path);

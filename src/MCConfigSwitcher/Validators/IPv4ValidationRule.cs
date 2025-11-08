@@ -13,8 +13,9 @@ namespace MCConfigSwitcher.Validators
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
             var text = value?.ToString() ?? string.Empty;
+            // Allow empty (for server auto-detect)
             if (string.IsNullOrWhiteSpace(text))
-                return new ValidationResult(false, "IP required");
+                return ValidationResult.ValidResult;
             if (!IPv4Regex.IsMatch(text))
                 return new ValidationResult(false, "Invalid IPv4");
             return ValidationResult.ValidResult;
