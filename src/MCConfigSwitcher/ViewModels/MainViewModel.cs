@@ -23,6 +23,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string currentServerIp = string.Empty;
 
+    [ObservableProperty]
+    private bool createBackups = true;
+
     public MainViewModel()
     {
         _profileManager = new ProfileManager();
@@ -124,6 +127,13 @@ public partial class MainViewModel : ObservableObject
         if (SelectedProfile == null) return;
         EnsureDefaultTargetAndRule();
         MapServerIp();
+        
+        // Update backup setting for all targets
+        foreach (var target in SelectedProfile.Targets)
+        {
+            target.MakeBackup = CreateBackups;
+        }
+        
         var r = _applyService.Apply(SelectedProfile);
         _profileManager.Save();
         _log.Info(r.Message);

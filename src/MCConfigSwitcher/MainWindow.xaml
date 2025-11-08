@@ -119,6 +119,11 @@
                     <TextBlock Text="Active:" Margin="0,12,0,4" FontSize="11" Foreground="{StaticResource Brush.MutedText}"/>
                     <TextBlock Text="{Binding SelectedProfile.Name, FallbackValue='(none)'}" 
                                FontWeight="SemiBold" Foreground="{StaticResource Brush.Accent}" Margin="0,0,0,12" TextWrapping="Wrap"/>
+                    
+                    <CheckBox IsChecked="{Binding CreateBackups}" Content="Create backups" 
+                              Foreground="{StaticResource Brush.Text}" Margin="0,0,0,8"
+                              ToolTip="Create .bak file before applying changes"/>
+                    
                     <Button Style="{StaticResource Button.Primary}" Content="Dry Run" Command="{Binding DryRunCommand}" ToolTip="Preview changes without modifying files"/>
                     <Button Style="{StaticResource Button.Base}" Content="Apply" Command="{Binding ApplyCommand}" ToolTip="Apply changes to target file (creates backup first)"/>
                     <Button Style="{StaticResource Button.Base}" Content="Revert" Command="{Binding RevertCommand}" ToolTip="Restore from most recent backup"/>
