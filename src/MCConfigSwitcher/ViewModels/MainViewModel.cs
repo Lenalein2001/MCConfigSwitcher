@@ -26,6 +26,15 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool createBackups = true;
 
+    partial void OnCreateBackupsChanged(bool value)
+    {
+        if (SelectedProfile != null)
+        {
+            SelectedProfile.CreateBackups = value;
+            SaveProfiles();
+        }
+    }
+
     public MainViewModel()
     {
         _profileManager = new ProfileManager();
@@ -183,6 +192,9 @@ public partial class MainViewModel : ObservableObject
                 value.Targets[0].PropertyChanged -= Target_PropertyChanged;
                 value.Targets[0].PropertyChanged += Target_PropertyChanged;
             }
+            
+            // Load backup setting from profile
+            CreateBackups = value.CreateBackups;
         }
         WireIpEntryHandlers();
         MapServerIp();

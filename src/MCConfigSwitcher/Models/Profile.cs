@@ -19,4 +19,6 @@ public class Profile : ObservableObject
     // Active IP choice retained for backward compatibility; may be unused when using dynamic IP entries.
     private string _activeIpChoice = "Home";
     public string ActiveIpChoice { get => _activeIpChoice; set => SetProperty(ref _activeIpChoice, value); }
+    
+    public bool CreateBackups { get; set; } = true;
 }
