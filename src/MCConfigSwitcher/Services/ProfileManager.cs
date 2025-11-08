@@ -19,9 +19,26 @@ public class ProfileManager
 
     public void Load()
     {
-        if (!File.Exists(_storagePath)) { Profiles = new List<Profile>(); return; }
-        var json = File.ReadAllText(_storagePath);
-        Profiles = JsonConvert.DeserializeObject<List<Profile>>(json) ?? new List<Profile>();
+        try
+        {
+            if (!File.Exists(_storagePath)) { Profiles = new List<Profile>(); return; }
+            var json = File.ReadAllText(_storagePath);
+            Profiles = JsonConvert.DeserializeObject<List<Profile>>(json) ?? new List<Profile>();
+        }
+        catch (Exception)
+        {
+            // If the profiles file is corrupt or unreadable, back it up and start fresh
+            try
+            {
+                var backup = Path.Combine(Path.GetDirectoryName(_storagePath)!,
+                    $"profiles.corrupt_{DateTime.Now:yyyyMMdd_HHmmss}.json");
+                File.Copy(_storagePath, backup, overwrite: true);
+            }
+            catch { /* ignore backup failures */ }
+            
+            Profiles = new List<Profile>();
+            // Avoid throwing to prevent app crash at startup; caller can continue with empty set.
+        }
     }
 
     public void Save()

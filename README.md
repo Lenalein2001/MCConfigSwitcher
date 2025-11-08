@@ -14,7 +14,6 @@ MC Config Switcher simplifies the management of Minecraft server configuration f
 - **Dry-Run Preview**: Review changes before applying them to your configuration files
 - **One-Click Revert**: Restore previous configuration from backups
 - **Dark Theme UI**: Clean, modern interface optimized for extended use
-- **System Tray Integration**: Quick access to profiles and actions
 - **No Admin Required**: Works without elevated permissions
 
 ## Getting Started
@@ -107,16 +106,20 @@ The `${SERVER_IP}` variable is automatically populated from the selected active 
 - **Revert Functionality**: Quickly restore the previous configuration
 - **Validation**: IP addresses are validated before allowing Apply
 
-## System Requirements
+## Requirements
 
-- Windows 10 or later
-- .NET 9.0 Runtime (included in self-contained releases)
+- Windows 10 or later (x64)
+- [.NET Desktop Runtime 9.0 (x64)](https://dotnet.microsoft.com/download/dotnet/9.0)
+
+To build from source:
+- [.NET SDK 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [Visual Studio](https://visualstudio.microsoft.com/vs/) (optional)
 
 ## Building from Source
 
 ### Prerequisites
-- .NET 9.0 SDK
-- Visual Studio 2022 or later (optional)
+- [.NET SDK 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [Visual Studio](https://visualstudio.microsoft.com/vs/) (optional)
 
 ### Build Commands
 
@@ -126,9 +129,6 @@ dotnet build .\src\MCConfigSwitcher\MCConfigSwitcher.csproj -c Debug
 
 # Release build
 dotnet build .\src\MCConfigSwitcher\MCConfigSwitcher.csproj -c Release
-
-# Run tests
-dotnet test .\src\MCConfigSwitcher.Tests\MCConfigSwitcher.Tests.csproj
 
 # Publish for distribution
 dotnet publish .\src\MCConfigSwitcher\MCConfigSwitcher.csproj -c Release -o .\publish
@@ -143,7 +143,6 @@ Built with:
   - CommunityToolkit.Mvvm - MVVM infrastructure
   - Newtonsoft.Json - Profile serialization
   - DiffPlex - Dry-run diff generation
-  - Hardcodet.NotifyIcon.Wpf - System tray integration
 
 ## License
 
